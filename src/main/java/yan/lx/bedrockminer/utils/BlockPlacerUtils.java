@@ -46,11 +46,17 @@ public class BlockPlacerUtils {
         var interactionManager = client.interactionManager;
         if (world == null || player == null || networkHandler == null || interactionManager == null) return;
         if (!world.getBlockState(blockPos).isReplaceable()) return;
-        var yaw = player.getYaw();
+        var yaw = switch (facing) {
+            case SOUTH -> 180;
+            case EAST -> 90;
+            case NORTH -> 0;
+            case WEST -> -90;
+            default -> player.getYaw();
+        };
         var pitch = switch (facing) {
             case UP -> 90F;
             case DOWN -> -90F;
-            default -> 0.0F;
+            default -> 0;
         };
         // 模拟选中位置(凭空放置)
         var HitPos = blockPos.offset(facing.getOpposite());

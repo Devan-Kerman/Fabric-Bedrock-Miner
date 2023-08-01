@@ -1,6 +1,7 @@
 package yan.lx.bedrockminer.utils;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -12,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static net.minecraft.block.Block.sideCoversSmallSquare;
@@ -25,7 +27,7 @@ public class CheckingEnvironmentUtils {
      */
     public static List<BlockPos> findNearbyFlatBlockToPlaceRedstoneTorch(ClientWorld world, BlockPos pistonBlockPos) {
         var list = new ArrayList<BlockPos>();
-        for (Direction direction : Direction.Type.HORIZONTAL) {
+        for (Direction direction : List.of(Direction.DOWN, Direction.EAST, Direction.WEST)) {
             var blockPos = pistonBlockPos.offset(direction);
             var blockState = world.getBlockState(blockPos);
             if (!sideCoversSmallSquare(world, blockPos.down(), Direction.UP)) {
@@ -43,7 +45,7 @@ public class CheckingEnvironmentUtils {
      */
     public static List<BlockPos> findPossibleSlimeBlockPos(ClientWorld world, BlockPos pistonBlockPos) {
         var list = new ArrayList<BlockPos>();
-        for (Direction direction : Direction.Type.HORIZONTAL) {
+        for (Direction direction : List.of(Direction.DOWN, Direction.EAST, Direction.WEST)) {
             BlockPos redTorchPos = pistonBlockPos.offset(direction);
             BlockPos BaseBlockPos = redTorchPos.down();
             if (!world.getBlockState(redTorchPos).isReplaceable() || !world.getBlockState(BaseBlockPos).isReplaceable()) {
@@ -55,8 +57,8 @@ public class CheckingEnvironmentUtils {
     }
 
     public static boolean has2BlocksOfPlaceToPlacePiston(ClientWorld world, BlockPos blockPos) {
-        BlockPos pos1 = blockPos.up();          // 活塞位置
-        BlockPos pos2 = blockPos.up().up();     // 活塞臂位置
+        BlockPos pos1 = blockPos.north();          // 活塞位置
+        BlockPos pos2 = blockPos.north().north();     // 活塞臂位置
         // 获取硬度, 打掉0硬度值的方块
         var blockState1 = world.getBlockState(pos1);
         if (!blockState1.isAir() && blockState1.getBlock().getHardness() < 45f) {
@@ -89,17 +91,17 @@ public class CheckingEnvironmentUtils {
 
     public static List<BlockPos> findNearbyRedstoneTorch(ClientWorld world, BlockPos pistonBlockPos) {
         List<BlockPos> list = new ArrayList<>();
-        if (world.getBlockState(pistonBlockPos.east()).isOf(Blocks.REDSTONE_TORCH)) {
-            list.add(pistonBlockPos.east());
-        }
-        if (world.getBlockState(pistonBlockPos.west()).isOf(Blocks.REDSTONE_TORCH)) {
-            list.add(pistonBlockPos.west());
-        }
-        if (world.getBlockState(pistonBlockPos.south()).isOf(Blocks.REDSTONE_TORCH)) {
-            list.add(pistonBlockPos.south());
-        }
-        if (world.getBlockState(pistonBlockPos.north()).isOf(Blocks.REDSTONE_TORCH)) {
-            list.add(pistonBlockPos.north());
+        list.add(pistonBlockPos.east());
+        list.add(pistonBlockPos.west());
+        list.add(pistonBlockPos.down());
+
+        Iterator<BlockPos> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            BlockPos pos = iterator.next();
+            Block block = world.getBlockState(pos).getBlock();
+            if (block != Blocks.REDSTONE_TORCH && block != Blocks.REDSTONE_WALL_TORCH) {
+                iterator.remove();
+            }
         }
         return list;
     }

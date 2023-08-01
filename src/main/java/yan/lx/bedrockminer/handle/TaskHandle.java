@@ -122,17 +122,17 @@ public class TaskHandle {
                     var nearByRedstoneTorchPosList = CheckingEnvironmentUtils.findNearbyRedstoneTorch(world, pistonBlockPos);
                     for (BlockPos pos : nearByRedstoneTorchPosList) {
                         Debug.info("[%s][%s][状态处理][执行]：打掉红石火把, %s", id, timeoutCount, pos);
-                        BlockBreakerUtils.instantBreakPistonBlock(pos);
+                        BlockBreakerUtils.instabreakBlock(pos);
                     }
                     // 打掉活塞
                     Debug.info("[%s][%s][状态处理][执行]：打掉活塞, %s", id, timeoutCount, pistonBlockPos);
-                    if (BlockBreakerUtils.instantBreakPistonBlock(pistonBlockPos)) {
+                    if (BlockBreakerUtils.instabreakBlock(pistonBlockPos)) {
                         this.status = TaskStatus.FAILED;
                     }
 
                     // 放置朝下的活塞
                     Debug.info("[%s][%s][状态处理][执行]：放置朝下的活塞, %s", id, timeoutCount, pistonBlockPos);
-                    BlockPlacerUtils.placement(pistonBlockPos, Direction.DOWN, Items.PISTON);
+                    BlockPlacerUtils.placement(pistonBlockPos, Direction.SOUTH, Items.PISTON);
 
                     hasTried = true;
                     Debug.info("[%s][%s][状态处理][执行]：执行完成", id, timeoutCount);
@@ -183,14 +183,14 @@ public class TaskHandle {
                     // 活塞
                     if (pistonBlockPos != null) {
                         // 可能残留的活塞1
-                        BlockPos pistonPos1 = pistonBlockPos.up();
+                        BlockPos pistonPos1 = pistonBlockPos.north();
                         if (world.getBlockState(pistonPos1).isOf(Blocks.PISTON)) {
                             Debug.info("[%s][%s][状态处理][物品回收][%s][活塞up]: %s", id, timeoutCount, recycleCount, pistonPos1);
                             BlockBreakerUtils.breakPistonBlock(pistonPos1);
                             return false;
                         }
                         // 可能残留的活塞2
-                        BlockPos pistonPos2 = pistonBlockPos.up().up();
+                        BlockPos pistonPos2 = pistonBlockPos.north().north();
                         if (world.getBlockState(pistonPos2).isOf(Blocks.PISTON)) {
                             Debug.info("[%s][%s][状态处理][物品回收][%s][活塞upup]: %s", id, timeoutCount, recycleCount, pistonPos2);
                             BlockBreakerUtils.breakPistonBlock(pistonPos1);
@@ -316,7 +316,7 @@ public class TaskHandle {
                     return;
                 } else {
                     Debug.info("[%s][%s][更新状态]: 未执行过, %s", id, timeoutCount, direction);
-                    if (direction == Direction.UP) {
+                    if (direction == Direction.NORTH) {
                         // 活塞已充能(执行开始)
                         if (world.getBlockState(pistonBlockPos).get(PistonBlock.EXTENDED)) {
                             Debug.info("[%s][%s][更新状态]: 条件充足, 准备执行", id, timeoutCount);
@@ -379,7 +379,7 @@ public class TaskHandle {
 
 
     private boolean onFindPistonPosition() {
-        var pos = blockPos.up();
+        var pos = blockPos.north();
         if (CheckingEnvironmentUtils.has2BlocksOfPlaceToPlacePiston(world, blockPos)) {
             Debug.info("[%s][%s][状态处理][查找活塞位置]: 完成, %s", id, timeoutCount, pos);
             pistonBlockPos = pos;
@@ -471,7 +471,7 @@ public class TaskHandle {
             Debug.info("[%s][%s][状态处理][放置活塞]: 放置失败, 该位置可能无法放置或有实体存在, %s", id, timeoutCount, pistonBlockPos);
             MessageUtils.setOverlayMessage(BedrockMinerLang.FAIL_PLACE_PISTON);
         }
-        BlockPlacerUtils.placement(pistonBlockPos, Direction.UP, Items.PISTON);
+        BlockPlacerUtils.placement(pistonBlockPos, Direction.NORTH, Items.PISTON);
         status = TaskStatus.WAIT;  // 等待更新状态
         return true;
     }

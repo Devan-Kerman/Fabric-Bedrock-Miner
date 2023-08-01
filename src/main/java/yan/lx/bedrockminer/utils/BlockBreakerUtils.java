@@ -21,7 +21,7 @@ public class BlockBreakerUtils {
      * @param pos 位置
      * @return true为破坏成功，false表示正在破坏（需要等到下一个tick处理）
      */
-    public static boolean instantBreakPistonBlock(BlockPos pos) {
+    public static boolean instabreakBlock(BlockPos pos) {
         return instantBreakBlock(pos, Direction.UP, tools);
     }
 
